@@ -51,14 +51,6 @@
     padding: 24px;
   }
 
-  #touch-top, #touch-bottom {
-    position: fixed;
-    left: 0; right: 0;
-    z-index: 5;
-  }
-  #touch-top    { top: 0;   height: 50%; }
-  #touch-bottom { top: 50%; height: 50%; }
-
   /* ── OVERLAY BAR ── */
   #overlay-bar {
     position: fixed;
@@ -106,7 +98,7 @@
     cursor: pointer;
   }
   .foul-num {
-    font-size: clamp(0.85rem, 3vw, 1.4rem);
+    font-size: clamp(1rem, 3.8vw, 1.8rem);
     font-weight: 900;
     color: var(--foul-color);
     line-height: 1;
@@ -119,19 +111,12 @@
     letter-spacing: 0.1em;
     flex-shrink: 0;
   }
-  .foul-arrows {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    line-height: 1;
-    font-size: clamp(0.3rem, 0.9vw, 0.45rem);
-    color: var(--text-dim);
-    flex-shrink: 0;
-  }
+
 
   .ob-seg.name {
     flex: 1;
     padding: 3px 8px;
+    cursor: pointer;
   }
   .name-text {
     font-size: clamp(0.6rem, 2.2vw, 0.95rem);
@@ -143,36 +128,25 @@
     text-overflow: ellipsis;
     max-width: 100%;
   }
-  .name-hint {
-    font-size: clamp(0.28rem, 0.85vw, 0.4rem);
-    color: var(--text-dim);
-    letter-spacing: 0.06em;
-  }
 
   .ob-seg.score {
     flex: 0 0 clamp(44px, 10vw, 72px);
   }
   .score-num {
-    font-size: clamp(1.3rem, 5vw, 2.8rem);
+    font-size: clamp(1.6rem, 6.5vw, 3.4rem);
     font-weight: 900;
     line-height: 1;
     font-variant-numeric: tabular-nums;
     flex-shrink: 0;
   }
-  .score-hint {
-    display: flex;
-    gap: 4px;
-    font-size: clamp(0.28rem, 0.85vw, 0.4rem);
-    color: var(--text-dim);
-    letter-spacing: 0.06em;
-  }
+
 
   .ob-seg.period {
     flex: 0 0 clamp(40px, 9vw, 64px);
     background: rgba(20,20,35,0.92);
   }
   .period-num {
-    font-size: clamp(1.1rem, 4.5vw, 2.2rem);
+    font-size: clamp(1.4rem, 5.5vw, 2.8rem);
     font-weight: 900;
     color: var(--accent);
     line-height: 1;
@@ -184,11 +158,7 @@
     text-transform: uppercase;
     letter-spacing: 0.1em;
   }
-  .period-hint {
-    font-size: clamp(0.26rem, 0.8vw, 0.38rem);
-    color: var(--text-dim);
-    margin-top: 1px;
-  }
+
 
   .ob-div {
     width: 1px;
@@ -313,8 +283,6 @@
   <div id="cam-error-msg">Iniciando cámara…</div>
 </div>
 
-<div id="touch-top"></div>
-<div id="touch-bottom"></div>
 
 <div id="ui-btns" class="pos-bottom">
   <button class="ui-btn" onclick="togglePosition()">⇅ mover</button>
@@ -325,39 +293,32 @@
   <div class="ob-seg foul" id="seg-foul-a">
     <div class="foul-num" id="foul-a">0</div>
     <div class="foul-lbl">faltas</div>
-    <div class="foul-arrows"><span>▲</span><span>▼</span></div>
   </div>
   <div class="ob-div"></div>
   <div class="ob-seg name" id="seg-local">
     <div class="name-text" id="name-a">LOCAL</div>
-    <div class="name-hint">mantén para editar</div>
   </div>
   <div class="ob-div"></div>
   <div class="ob-seg score" id="seg-score-a">
     <div class="score-num" id="score-a">0</div>
-    <div class="score-hint"><span>▲▼</span></div>
   </div>
   <div class="ob-div"></div>
   <div class="ob-seg period" id="seg-period">
     <div class="period-num" id="period-num">1</div>
     <div class="period-lbl" id="period-lbl">1° CTO</div>
-    <div class="period-hint">▲▼</div>
   </div>
   <div class="ob-div"></div>
   <div class="ob-seg score" id="seg-score-b">
     <div class="score-num" id="score-b">0</div>
-    <div class="score-hint"><span>▲▼</span></div>
   </div>
   <div class="ob-div"></div>
   <div class="ob-seg name" id="seg-visit">
     <div class="name-text" id="name-b">VISITA</div>
-    <div class="name-hint">mantén para editar</div>
   </div>
   <div class="ob-div"></div>
   <div class="ob-seg foul" id="seg-foul-b">
     <div class="foul-num" id="foul-b">0</div>
     <div class="foul-lbl">faltas</div>
-    <div class="foul-arrows"><span>▲</span><span>▼</span></div>
   </div>
 </div>
 
@@ -417,10 +378,12 @@ async function startCamera() {
   }
 }
 
-// ── TOUCH ZONES ──
-// Zones by X position mapping to overlay segments:
-// 0=foul-a  1=name-a  2=score-a  3=period  4=score-b  5=name-b  6=foul-b
+// ── TOUCH / CLICK HANDLER ──
 const SEG_IDS = ['seg-foul-a','seg-local','seg-score-a','seg-period','seg-score-b','seg-visit','seg-foul-b'];
+
+function pointInRect(x, y, rect) {
+  return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+}
 
 function getZone(clientX) {
   for (let i = 0; i < SEG_IDS.length; i++) {
@@ -444,15 +407,32 @@ function handleTap(isTop, clientX) {
   }
 }
 
-['touch-top', 'touch-bottom'].forEach(id => {
-  const el = document.getElementById(id);
-  const isTop = id === 'touch-top';
-  el.addEventListener('click', e => {
-    if (document.getElementById('modal-overlay').classList.contains('open')) return;
-    const target = document.elementFromPoint(e.clientX, e.clientY);
-    if (target && target.closest('#ui-btns')) return;
-    handleTap(isTop, e.clientX);
-  });
+// Name segments get click listeners directly for editing
+document.getElementById('seg-local').addEventListener('click', e => {
+  if (document.getElementById('modal-overlay').classList.contains('open')) return;
+  const isTop = e.clientY < window.innerHeight / 2;
+  if (!isTop) { openModal('a'); return; }
+  addScore('a', 1);
+});
+document.getElementById('seg-visit').addEventListener('click', e => {
+  if (document.getElementById('modal-overlay').classList.contains('open')) return;
+  const isTop = e.clientY < window.innerHeight / 2;
+  if (!isTop) { openModal('b'); return; }
+  addScore('b', 1);
+});
+
+// All other segments and background use document listener
+document.addEventListener('click', e => {
+  if (document.getElementById('modal-overlay').classList.contains('open')) return;
+  // ignore UI buttons
+  if (e.target.closest('#ui-btns')) return;
+  // ignore modal
+  if (e.target.closest('#modal')) return;
+  // ignore name segments (handled above)
+  if (e.target.closest('#seg-local') || e.target.closest('#seg-visit')) return;
+
+  const isTop = e.clientY < window.innerHeight / 2;
+  handleTap(isTop, e.clientX);
 });
 
 // ── STATE ──
@@ -511,30 +491,6 @@ function toggleFullscreen() {
     else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
   }
 }
-
-// ── LONG PRESS ON NAMES ──
-const LONG_PRESS_MS = 500;
-let longPressTimer = null;
-
-function setupLongPress(segId, team) {
-  const el = document.getElementById(segId);
-  function start(e) {
-    e.preventDefault();
-    longPressTimer = setTimeout(() => {
-      longPressTimer = null;
-      openModal(team);
-    }, LONG_PRESS_MS);
-  }
-  function cancel() {
-    if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
-  }
-  el.addEventListener('touchstart', start, { passive: false });
-  el.addEventListener('touchend',   cancel);
-  el.addEventListener('touchmove',  cancel);
-}
-
-setupLongPress('seg-local', 'a');
-setupLongPress('seg-visit', 'b');
 
 // ── MODAL ──
 function buildSwatches(sel) {
