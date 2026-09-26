@@ -27,7 +27,6 @@
     -webkit-user-select: none;
   }
 
-  /* ── CAMERA ── */
   #camera {
     position: fixed;
     inset: 0;
@@ -51,48 +50,34 @@
     text-align: center;
     padding: 24px;
   }
-  #cam-error .icon { font-size: 2.5rem; }
 
-  /* ── TOUCH ZONES (full screen, split top/bottom) ── */
   #touch-top, #touch-bottom {
     position: fixed;
     left: 0; right: 0;
     z-index: 5;
-    /* each half */
   }
-  #touch-top    { top: 0; height: 50%; }
+  #touch-top    { top: 0;   height: 50%; }
   #touch-bottom { top: 50%; height: 50%; }
 
   /* ── OVERLAY BAR ── */
   #overlay-bar {
     position: fixed;
-    left: 0; right: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(98vw, 700px);
     z-index: 10;
     display: flex;
     align-items: stretch;
-    height: clamp(56px, 12vh, 80px);
-    /* default bottom */
+    height: clamp(38px, 8dvh, 56px);
     bottom: env(safe-area-inset-bottom, 0px);
+    border-radius: 6px;
+    overflow: hidden;
   }
   #overlay-bar.pos-top {
     bottom: auto;
     top: env(safe-area-inset-top, 0px);
   }
 
-
-  .flash-up, .flash-down {
-    position: fixed;
-    left: 0; right: 0;
-    z-index: 4;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.15s;
-  }
-  .flash-up   { top: 0;   height: 50%; background: rgba(110,232,110,0.07); }
-  .flash-down { top: 50%; height: 50%; background: rgba(232,110,110,0.07); }
-  .flash-up.show, .flash-down.show { opacity: 1; }
-
-  /* Segments within overlay */
   .ob-seg {
     display: flex;
     flex-direction: column;
@@ -104,54 +89,52 @@
     -webkit-backdrop-filter: blur(6px);
     position: relative;
     overflow: hidden;
+    padding: 3px 2px;
   }
-
-  /* color stripe top */
   .ob-seg::before {
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0;
-    height: 4px;
+    height: 3px;
   }
-  #seg-local::before  { background: var(--color-a, #2060e0); }
-  #seg-visit::before  { background: var(--color-b, #e03030); }
+  #seg-local::before { background: var(--color-a, #2060e0); }
+  #seg-visit::before { background: var(--color-b, #e03030); }
 
-  /* Faltas */
   .ob-seg.foul {
-    flex: 0 0 clamp(44px, 10vw, 72px);
-    gap: 2px;
+    flex: 0 0 clamp(34px, 7.5vw, 54px);
+    gap: 1px;
     cursor: pointer;
   }
   .foul-num {
-    font-size: clamp(1.3rem, 5vw, 2.4rem);
+    font-size: clamp(0.85rem, 3vw, 1.4rem);
     font-weight: 900;
     color: var(--foul-color);
     line-height: 1;
+    flex-shrink: 0;
   }
   .foul-lbl {
-    font-size: clamp(0.4rem, 1.3vw, 0.58rem);
+    font-size: clamp(0.3rem, 0.9vw, 0.42rem);
     color: var(--text-mid);
     text-transform: uppercase;
     letter-spacing: 0.1em;
+    flex-shrink: 0;
   }
-  /* up/down arrows on foul */
   .foul-arrows {
     display: flex;
     flex-direction: column;
     align-items: center;
     line-height: 1;
-    font-size: clamp(0.5rem, 1.6vw, 0.7rem);
+    font-size: clamp(0.3rem, 0.9vw, 0.45rem);
     color: var(--text-dim);
+    flex-shrink: 0;
   }
 
-  /* Name */
   .ob-seg.name {
     flex: 1;
-    cursor: pointer;
-    padding: 0 8px;
+    padding: 3px 8px;
   }
   .name-text {
-    font-size: clamp(0.75rem, 3vw, 1.3rem);
+    font-size: clamp(0.6rem, 2.2vw, 0.95rem);
     font-weight: 700;
     letter-spacing: 0.04em;
     text-transform: uppercase;
@@ -161,54 +144,52 @@
     max-width: 100%;
   }
   .name-hint {
-    font-size: clamp(0.4rem, 1.2vw, 0.55rem);
-    color: var(--text-dim);
-    letter-spacing: 0.08em;
-  }
-
-  /* Score */
-  .ob-seg.score {
-    flex: 0 0 clamp(60px, 14vw, 100px);
-  }
-  .score-num {
-    font-size: clamp(2rem, 9vw, 4.5rem);
-    font-weight: 900;
-    line-height: 1;
-    font-variant-numeric: tabular-nums;
-  }
-  .score-hint {
-    display: flex;
-    gap: 6px;
-    font-size: clamp(0.4rem, 1.2vw, 0.55rem);
+    font-size: clamp(0.28rem, 0.85vw, 0.4rem);
     color: var(--text-dim);
     letter-spacing: 0.06em;
   }
 
-  /* Period */
+  .ob-seg.score {
+    flex: 0 0 clamp(44px, 10vw, 72px);
+  }
+  .score-num {
+    font-size: clamp(1.3rem, 5vw, 2.8rem);
+    font-weight: 900;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+  }
+  .score-hint {
+    display: flex;
+    gap: 4px;
+    font-size: clamp(0.28rem, 0.85vw, 0.4rem);
+    color: var(--text-dim);
+    letter-spacing: 0.06em;
+  }
+
   .ob-seg.period {
-    flex: 0 0 clamp(52px, 12vw, 84px);
+    flex: 0 0 clamp(40px, 9vw, 64px);
     background: rgba(20,20,35,0.92);
-    gap: 0;
   }
   .period-num {
-    font-size: clamp(1.8rem, 7vw, 3.5rem);
+    font-size: clamp(1.1rem, 4.5vw, 2.2rem);
     font-weight: 900;
     color: var(--accent);
     line-height: 1;
+    flex-shrink: 0;
   }
   .period-lbl {
-    font-size: clamp(0.4rem, 1.3vw, 0.6rem);
+    font-size: clamp(0.28rem, 0.9vw, 0.42rem);
     color: var(--text-mid);
     text-transform: uppercase;
     letter-spacing: 0.1em;
   }
   .period-hint {
-    font-size: clamp(0.38rem, 1.1vw, 0.52rem);
+    font-size: clamp(0.26rem, 0.8vw, 0.38rem);
     color: var(--text-dim);
-    margin-top: 2px;
+    margin-top: 1px;
   }
 
-  /* Dividers */
   .ob-div {
     width: 1px;
     background: var(--border);
@@ -216,14 +197,22 @@
     align-self: stretch;
   }
 
-  /* ── MOVE / FULLSCREEN buttons (discrete, overlay on camera) ── */
+  /* ── UI BUTTONS ── */
   #ui-btns {
     position: fixed;
-    top: env(safe-area-inset-top, 8px);
     right: 8px;
     z-index: 20;
     display: flex;
     gap: 6px;
+    transition: top 0.25s ease, bottom 0.25s ease;
+  }
+  #ui-btns.pos-bottom {
+    top: env(safe-area-inset-top, 8px);
+    bottom: auto;
+  }
+  #ui-btns.pos-top {
+    bottom: env(safe-area-inset-bottom, 8px);
+    top: auto;
   }
   .ui-btn {
     background: rgba(10,10,15,0.7);
@@ -243,7 +232,6 @@
     touch-action: manipulation;
   }
   .ui-btn:active { background: rgba(40,40,60,0.9); }
-  #ui-btns.hidden { display: none; }
 
   /* ── MODAL ── */
   #modal-overlay {
@@ -256,7 +244,6 @@
     justify-content: center;
   }
   #modal-overlay.open { display: flex; }
-
   #modal {
     background: var(--panel);
     border: 1px solid var(--border);
@@ -316,87 +303,57 @@
   }
   .modal-btn.cancel { background: var(--border); color: var(--text-mid); }
   .modal-btn.save   { background: var(--accent); color: #000; }
-
-  /* reset button in modal */
-  .modal-reset {
-    font-size: 0.7rem;
-    color: var(--foul-color);
-    text-decoration: underline;
-    cursor: pointer;
-    text-align: left;
-    background: none;
-    border: none;
-    font-family: 'Barlow', sans-serif;
-    padding: 0;
-  }
 </style>
 </head>
 <body>
 
 <video id="camera" autoplay playsinline muted></video>
 <div id="cam-error">
-  <div class="icon">📷</div>
+  <div style="font-size:2.5rem">📷</div>
   <div id="cam-error-msg">Iniciando cámara…</div>
 </div>
 
-<!-- Touch zones -->
 <div id="touch-top"></div>
 <div id="touch-bottom"></div>
 
-<!-- Discrete UI buttons -->
-<div id="ui-btns">
+<div id="ui-btns" class="pos-bottom">
   <button class="ui-btn" onclick="togglePosition()">⇅ mover</button>
   <button class="ui-btn" onclick="toggleFullscreen()">⤢ pantalla</button>
-  <button class="ui-btn" onclick="confirmReset()" style="color:var(--foul-color)">↺ reset</button>
 </div>
 
-<!-- OVERLAY BAR -->
 <div id="overlay-bar">
-  <!-- Faltas Local -->
   <div class="ob-seg foul" id="seg-foul-a">
     <div class="foul-num" id="foul-a">0</div>
     <div class="foul-lbl">faltas</div>
     <div class="foul-arrows"><span>▲</span><span>▼</span></div>
   </div>
   <div class="ob-div"></div>
-
-  <!-- Nombre Local -->
   <div class="ob-seg name" id="seg-local">
     <div class="name-text" id="name-a">LOCAL</div>
-    <div class="name-hint">mantén presionado para editar</div>
+    <div class="name-hint">mantén para editar</div>
   </div>
   <div class="ob-div"></div>
-
-  <!-- Score Local -->
   <div class="ob-seg score" id="seg-score-a">
     <div class="score-num" id="score-a">0</div>
-    <div class="score-hint"><span>▲ sube</span><span>▼ baja</span></div>
+    <div class="score-hint"><span>▲▼</span></div>
   </div>
   <div class="ob-div"></div>
-
-  <!-- Período -->
   <div class="ob-seg period" id="seg-period">
     <div class="period-num" id="period-num">1</div>
     <div class="period-lbl" id="period-lbl">1° CTO</div>
     <div class="period-hint">▲▼</div>
   </div>
   <div class="ob-div"></div>
-
-  <!-- Score Visita -->
   <div class="ob-seg score" id="seg-score-b">
     <div class="score-num" id="score-b">0</div>
-    <div class="score-hint"><span>▲ sube</span><span>▼ baja</span></div>
+    <div class="score-hint"><span>▲▼</span></div>
   </div>
   <div class="ob-div"></div>
-
-  <!-- Nombre Visita -->
   <div class="ob-seg name" id="seg-visit">
     <div class="name-text" id="name-b">VISITA</div>
-    <div class="name-hint">mantén presionado para editar</div>
+    <div class="name-hint">mantén para editar</div>
   </div>
   <div class="ob-div"></div>
-
-  <!-- Faltas Visita -->
   <div class="ob-seg foul" id="seg-foul-b">
     <div class="foul-num" id="foul-b">0</div>
     <div class="foul-lbl">faltas</div>
@@ -404,7 +361,6 @@
   </div>
 </div>
 
-<!-- MODAL -->
 <div id="modal-overlay">
   <div id="modal">
     <h2 id="modal-title">Editar equipo</h2>
@@ -432,8 +388,8 @@ const COLORS = [
 const PERIOD_LABELS = ['1° CTO','2° CTO','3° CTO','4° CTO','PRÓRR 1','PRÓRR 2'];
 
 const state = {
-  a: { score:0, fouls:0, name:'LOCAL',  color:'#2060e0' },
-  b: { score:0, fouls:0, name:'VISITA', color:'#e03030' },
+  a: { score: 0, fouls: 0, name: 'LOCAL',  color: '#2060e0' },
+  b: { score: 0, fouls: 0, name: 'VISITA', color: '#e03030' },
   period: 1,
   overlayPos: 'bottom'
 };
@@ -447,7 +403,7 @@ async function startCamera() {
   const errMsg = document.getElementById('cam-error-msg');
   try {
     const stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: { ideal: 'environment' }, width:{ideal:1920}, height:{ideal:1080} },
+      video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1080 } },
       audio: false
     });
     video.srcObject = stream;
@@ -456,144 +412,96 @@ async function startCamera() {
     video.style.display = 'none';
     errDiv.style.display = 'flex';
     errMsg.textContent = e.name === 'NotAllowedError'
-      ? 'Permiso de cámara denegado. Habilitá el acceso en ajustes del navegador.'
+      ? 'Permiso de cámara denegado. Habilitalo en ajustes del navegador.'
       : 'Error al iniciar la cámara: ' + e.message;
   }
 }
 
-// ── TOUCH LOGIC ──
-// Divide overlay into 7 zones by X position
-// [0] foul-a  [1] name-a  [2] score-a  [3] period  [4] score-b  [5] name-b  [6] foul-b
-// name zones do nothing on touch (they open modal on click)
+// ── TOUCH ZONES ──
+// Zones by X position mapping to overlay segments:
+// 0=foul-a  1=name-a  2=score-a  3=period  4=score-b  5=name-b  6=foul-b
+const SEG_IDS = ['seg-foul-a','seg-local','seg-score-a','seg-period','seg-score-b','seg-visit','seg-foul-b'];
 
 function getZone(clientX) {
-  const bar = document.getElementById('overlay-bar');
-  const segs = [
-    document.getElementById('seg-foul-a'),
-    document.getElementById('seg-local'),
-    document.getElementById('seg-score-a'),
-    document.getElementById('seg-period'),
-    document.getElementById('seg-score-b'),
-    document.getElementById('seg-visit'),
-    document.getElementById('seg-foul-b'),
-  ];
-  for (let i = 0; i < segs.length; i++) {
-    const r = segs[i].getBoundingClientRect();
+  for (let i = 0; i < SEG_IDS.length; i++) {
+    const r = document.getElementById(SEG_IDS[i]).getBoundingClientRect();
     if (clientX >= r.left && clientX <= r.right) return i;
   }
-  // fallback: left half = score-a, right half = score-b
   return clientX < window.innerWidth / 2 ? 2 : 4;
 }
 
 function handleTap(isTop, clientX) {
   const delta = isTop ? 1 : -1;
   const zone  = getZone(clientX);
-
-  // zones: 0=foul-a, 1=name-a(skip), 2=score-a, 3=period, 4=score-b, 5=name-b(skip), 6=foul-b
   switch(zone) {
-    case 0: addFoul('a', delta);   break;
-    case 1: addScore('a', delta);  break;
-    case 2: addScore('a', delta);  break;
-    case 3: changePeriod(delta);   break;
-    case 4: addScore('b', delta);  break;
-    case 5: addScore('b', delta);  break;
-    case 6: addFoul('b', delta);   break;
+    case 0: addFoul('a', delta);  break;
+    case 1: addScore('a', delta); break;
+    case 2: addScore('a', delta); break;
+    case 3: changePeriod(delta);  break;
+    case 4: addScore('b', delta); break;
+    case 5: addScore('b', delta); break;
+    case 6: addFoul('b', delta);  break;
   }
 }
-// Attach touch/click to zones
-['touch-top','touch-bottom'].forEach(id => {
+
+['touch-top', 'touch-bottom'].forEach(id => {
   const el = document.getElementById(id);
   const isTop = id === 'touch-top';
-
   el.addEventListener('click', e => {
-    // if modal is open, ignore
     if (document.getElementById('modal-overlay').classList.contains('open')) return;
-    // check if tap landed on UI buttons
     const target = document.elementFromPoint(e.clientX, e.clientY);
     if (target && target.closest('#ui-btns')) return;
     handleTap(isTop, e.clientX);
   });
 });
 
-// ── LONG PRESS ON NAMES ──
-let longPressTimer = null;
-const LONG_PRESS_MS = 500;
-
-function setupLongPress(segId, team) {
-  const el = document.getElementById(segId);
-
-  function start(e) {
-    e.preventDefault();
-    longPressTimer = setTimeout(() => {
-      longPressTimer = null;
-      openModal(team);
-    }, LONG_PRESS_MS);
-  }
-
-  function cancel() {
-    if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
-  }
-
-  el.addEventListener('touchstart', start, { passive: false });
-  el.addEventListener('touchend',   cancel);
-  el.addEventListener('touchmove',  cancel);
-}
-
-setupLongPress('seg-local', 'a');
-setupLongPress('seg-visit', 'b');
-
 // ── STATE ──
-function clamp(v,mn,mx){ return Math.max(mn,Math.min(mx,v)); }
-function addScore(t,d)  { state[t].score  = clamp(state[t].score +d, 0, 999); render(); }
-function addFoul(t,d)   { state[t].fouls  = clamp(state[t].fouls +d, 0, 40);  render(); }
-function changePeriod(d){ state.period    = clamp(state.period   +d, 1, 6);   render(); }
-
-function confirmReset(){
-  if(confirm('¿Resetear marcador y faltas? (El período se mantiene)')) {
-    state.a.score=0; state.b.score=0;
-    state.a.fouls=0; state.b.fouls=0;
-    render();
-  }
-}
+function clamp(v, mn, mx) { return Math.max(mn, Math.min(mx, v)); }
+function addScore(t, d)   { state[t].score  = clamp(state[t].score  + d, 0, 999); render(); }
+function addFoul(t, d)    { state[t].fouls  = clamp(state[t].fouls  + d, 0, 40);  render(); }
+function changePeriod(d)  { state.period    = clamp(state.period    + d, 1, 6);   render(); }
 
 // ── RENDER ──
-function render(){
-  ['a','b'].forEach(t => {
-    document.getElementById('score-'+t).textContent = state[t].score;
-    document.getElementById('foul-'+t).textContent  = state[t].fouls;
-    document.getElementById('name-'+t).textContent  = state[t].name.toUpperCase();
+function render() {
+  ['a', 'b'].forEach(t => {
+    document.getElementById('score-' + t).textContent = state[t].score;
+    document.getElementById('foul-'  + t).textContent = state[t].fouls;
+    document.getElementById('name-'  + t).textContent = state[t].name.toUpperCase();
   });
-  // colors via CSS custom props on overlay
   const bar = document.getElementById('overlay-bar');
   bar.style.setProperty('--color-a', state.a.color);
   bar.style.setProperty('--color-b', state.b.color);
-
   const p = state.period;
   document.getElementById('period-num').textContent = p;
-  document.getElementById('period-lbl').textContent = PERIOD_LABELS[p-1] || ('PRÓRR '+(p-4));
+  document.getElementById('period-lbl').textContent = PERIOD_LABELS[p - 1] || ('PRÓRR ' + (p - 4));
 }
 
 // ── POSITION ──
-function togglePosition(){
+function togglePosition() {
   state.overlayPos = state.overlayPos === 'bottom' ? 'top' : 'bottom';
   applyLayout();
 }
 
-function applyLayout(){
-  const bar = document.getElementById('overlay-bar');
-  if(state.overlayPos === 'top'){
+function applyLayout() {
+  const bar  = document.getElementById('overlay-bar');
+  const btns = document.getElementById('ui-btns');
+  if (state.overlayPos === 'top') {
     bar.style.top    = 'env(safe-area-inset-top, 0px)';
     bar.style.bottom = '';
     bar.classList.add('pos-top');
+    btns.classList.remove('pos-bottom');
+    btns.classList.add('pos-top');
   } else {
     bar.style.bottom = 'env(safe-area-inset-bottom, 0px)';
     bar.style.top    = '';
     bar.classList.remove('pos-top');
+    btns.classList.remove('pos-top');
+    btns.classList.add('pos-bottom');
   }
 }
 
 // ── FULLSCREEN ──
-function toggleFullscreen(){
+function toggleFullscreen() {
   if (!document.fullscreenElement && !document.webkitFullscreenElement) {
     const el = document.documentElement;
     if (el.requestFullscreen) el.requestFullscreen();
@@ -604,58 +512,82 @@ function toggleFullscreen(){
   }
 }
 
+// ── LONG PRESS ON NAMES ──
+const LONG_PRESS_MS = 500;
+let longPressTimer = null;
+
+function setupLongPress(segId, team) {
+  const el = document.getElementById(segId);
+  function start(e) {
+    e.preventDefault();
+    longPressTimer = setTimeout(() => {
+      longPressTimer = null;
+      openModal(team);
+    }, LONG_PRESS_MS);
+  }
+  function cancel() {
+    if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+  }
+  el.addEventListener('touchstart', start, { passive: false });
+  el.addEventListener('touchend',   cancel);
+  el.addEventListener('touchmove',  cancel);
+}
+
+setupLongPress('seg-local', 'a');
+setupLongPress('seg-visit', 'b');
+
 // ── MODAL ──
-function buildSwatches(sel){
+function buildSwatches(sel) {
   const c = document.getElementById('color-swatches');
-  c.innerHTML='';
+  c.innerHTML = '';
   COLORS.forEach(hex => {
     const sw = document.createElement('div');
-    sw.className = 'color-swatch'+(hex===sel?' selected':'');
+    sw.className = 'color-swatch' + (hex === sel ? ' selected' : '');
     sw.style.background = hex;
     sw.onclick = () => {
-      c.querySelectorAll('.color-swatch').forEach(s=>s.classList.remove('selected'));
+      c.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
       sw.classList.add('selected');
     };
     c.appendChild(sw);
   });
 }
 
-function openModal(t){
+function openModal(t) {
   modalTeam = t;
   document.getElementById('modal-title').textContent =
-    t==='a' ? 'Editar Equipo Local' : 'Editar Equipo Visita';
+    t === 'a' ? 'Editar Equipo Local' : 'Editar Equipo Visita';
   document.getElementById('modal-name').value = state[t].name;
   buildSwatches(state[t].color);
   document.getElementById('modal-overlay').classList.add('open');
-  setTimeout(()=>document.getElementById('modal-name').focus(),100);
+  setTimeout(() => document.getElementById('modal-name').focus(), 100);
 }
 
-function closeModal(){
+function closeModal() {
   document.getElementById('modal-overlay').classList.remove('open');
   modalTeam = null;
 }
 
-function rgbToHex(str){
+function rgbToHex(str) {
   const m = str.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
-  if(!m) return str;
-  return '#'+[m[1],m[2],m[3]].map(x=>parseInt(x).toString(16).padStart(2,'0')).join('');
+  if (!m) return str;
+  return '#' + [m[1], m[2], m[3]].map(x => parseInt(x).toString(16).padStart(2, '0')).join('');
 }
 
-function saveModal(){
-  if(!modalTeam) return;
+function saveModal() {
+  if (!modalTeam) return;
   const name = document.getElementById('modal-name').value.trim();
-  if(name) state[modalTeam].name = name;
+  if (name) state[modalTeam].name = name;
   const sel = document.querySelector('.color-swatch.selected');
-  if(sel) state[modalTeam].color = rgbToHex(sel.style.background) || state[modalTeam].color;
+  if (sel) state[modalTeam].color = rgbToHex(sel.style.background) || state[modalTeam].color;
   closeModal();
   render();
 }
 
-document.getElementById('modal-overlay').addEventListener('click', function(e){
-  if(e.target===this) closeModal();
+document.getElementById('modal-overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
 });
-document.getElementById('modal-name').addEventListener('keydown', e=>{
-  if(e.key==='Enter') saveModal();
+document.getElementById('modal-name').addEventListener('keydown', e => {
+  if (e.key === 'Enter') saveModal();
 });
 
 // ── INIT ──
