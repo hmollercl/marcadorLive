@@ -12,14 +12,10 @@
     --border: #2a2a3a;
     --text-dim: #555570;
     --text-mid: #9090b0;
-    --text-bright: #ffffff;
     --accent: #e8c84a;
     --foul-color: #e05a2b;
-    box-sizing: border-box;
-    padding-top: env(safe-area-inset-top, 0px);
-    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
-  * { box-sizing: inherit; margin: 0; padding: 0; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   html, body {
     width: 100%; height: 100%;
@@ -38,7 +34,6 @@
     width: 100%; height: 100%;
     object-fit: cover;
     z-index: 1;
-    background: #000;
   }
 
   #cam-error {
@@ -58,6 +53,16 @@
   }
   #cam-error .icon { font-size: 2.5rem; }
 
+  /* ── TOUCH ZONES (full screen, split top/bottom) ── */
+  #touch-top, #touch-bottom {
+    position: fixed;
+    left: 0; right: 0;
+    z-index: 5;
+    /* each half */
+  }
+  #touch-top    { top: 0; height: 50%; }
+  #touch-bottom { top: 50%; height: 50%; }
+
   /* ── OVERLAY BAR ── */
   #overlay-bar {
     position: fixed;
@@ -65,208 +70,180 @@
     z-index: 10;
     display: flex;
     align-items: stretch;
-    height: clamp(52px, 10vh, 72px);
-    transition: top 0.25s ease, bottom 0.25s ease;
+    height: clamp(56px, 12vh, 80px);
+    /* default bottom */
+    bottom: env(safe-area-inset-bottom, 0px);
   }
-  #overlay-bar.pos-bottom { bottom: env(safe-area-inset-bottom, 0px); top: auto; }
-  #overlay-bar.pos-top    { top: env(safe-area-inset-top, 0px); bottom: auto; }
+  #overlay-bar.pos-top {
+    bottom: auto;
+    top: env(safe-area-inset-top, 0px);
+  }
 
-  /* Team blocks */
-  .ob-team {
-    flex: 1;
+
+  .flash-up, .flash-down {
+    position: fixed;
+    left: 0; right: 0;
+    z-index: 4;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .flash-up   { top: 0;   height: 50%; background: rgba(110,232,110,0.07); }
+  .flash-down { top: 50%; height: 50%; background: rgba(232,110,110,0.07); }
+  .flash-up.show, .flash-down.show { opacity: 1; }
+
+  /* Segments within overlay */
+  .ob-seg {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 0;
-    overflow: hidden;
-  }
-  .ob-team.left  { flex-direction: row; }
-  .ob-team.right { flex-direction: row-reverse; }
-
-  .ob-color-stripe {
-    width: 6px;
+    justify-content: center;
     height: 100%;
-    flex-shrink: 0;
-  }
-
-  .ob-team-inner {
-    flex: 1;
-    display: flex;
-    align-items: center;
     background: rgba(10,10,15,0.88);
-    height: 100%;
-    padding: 0 12px;
-    gap: 10px;
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
+    position: relative;
+    overflow: hidden;
   }
-  .ob-team.right .ob-team-inner { flex-direction: row-reverse; }
 
-  .ob-name {
-    font-size: clamp(0.85rem, 3.2vw, 1.25rem);
+  /* color stripe top */
+  .ob-seg::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+  }
+  #seg-local::before  { background: var(--color-a, #2060e0); }
+  #seg-visit::before  { background: var(--color-b, #e03030); }
+
+  /* Faltas */
+  .ob-seg.foul {
+    flex: 0 0 clamp(44px, 10vw, 72px);
+    gap: 2px;
+    cursor: pointer;
+  }
+  .foul-num {
+    font-size: clamp(1.3rem, 5vw, 2.4rem);
+    font-weight: 900;
+    color: var(--foul-color);
+    line-height: 1;
+  }
+  .foul-lbl {
+    font-size: clamp(0.4rem, 1.3vw, 0.58rem);
+    color: var(--text-mid);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  /* up/down arrows on foul */
+  .foul-arrows {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 1;
+    font-size: clamp(0.5rem, 1.6vw, 0.7rem);
+    color: var(--text-dim);
+  }
+
+  /* Name */
+  .ob-seg.name {
+    flex: 1;
+    cursor: pointer;
+    padding: 0 8px;
+  }
+  .name-text {
+    font-size: clamp(0.75rem, 3vw, 1.3rem);
     font-weight: 700;
     letter-spacing: 0.04em;
     text-transform: uppercase;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    flex: 1;
+    max-width: 100%;
   }
-  .ob-team.right .ob-name { text-align: right; }
-
-  .ob-foul-badge {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    line-height: 1;
-    opacity: 0.9;
-  }
-  .ob-foul-num {
-    font-size: clamp(1rem, 3.5vw, 1.5rem);
-    font-weight: 900;
-    color: var(--foul-color);
-  }
-  .ob-foul-lbl {
-    font-size: clamp(0.45rem, 1.4vw, 0.6rem);
-    color: var(--text-mid);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
+  .name-hint {
+    font-size: clamp(0.4rem, 1.2vw, 0.55rem);
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
   }
 
-  .ob-score {
-    font-size: clamp(1.8rem, 7vw, 3rem);
+  /* Score */
+  .ob-seg.score {
+    flex: 0 0 clamp(60px, 14vw, 100px);
+  }
+  .score-num {
+    font-size: clamp(2rem, 9vw, 4.5rem);
     font-weight: 900;
     line-height: 1;
     font-variant-numeric: tabular-nums;
-    min-width: 2ch;
-    text-align: center;
+  }
+  .score-hint {
+    display: flex;
+    gap: 6px;
+    font-size: clamp(0.4rem, 1.2vw, 0.55rem);
+    color: var(--text-dim);
+    letter-spacing: 0.06em;
   }
 
-  /* Center block */
-  .ob-center {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+  /* Period */
+  .ob-seg.period {
+    flex: 0 0 clamp(52px, 12vw, 84px);
     background: rgba(20,20,35,0.92);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-    padding: 0 14px;
-    height: 100%;
-    flex-shrink: 0;
+    gap: 0;
   }
-  .ob-period-num {
-    font-size: clamp(1.4rem, 5vw, 2.2rem);
+  .period-num {
+    font-size: clamp(1.8rem, 7vw, 3.5rem);
     font-weight: 900;
     color: var(--accent);
     line-height: 1;
   }
-  .ob-period-lbl {
-    font-size: clamp(0.5rem, 1.6vw, 0.68rem);
+  .period-lbl {
+    font-size: clamp(0.4rem, 1.3vw, 0.6rem);
     color: var(--text-mid);
     text-transform: uppercase;
     letter-spacing: 0.1em;
   }
+  .period-hint {
+    font-size: clamp(0.38rem, 1.1vw, 0.52rem);
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
 
-  /* ── CONTROLS PANEL ── */
-  #controls-panel {
+  /* Dividers */
+  .ob-div {
+    width: 1px;
+    background: var(--border);
+    flex-shrink: 0;
+    align-self: stretch;
+  }
+
+  /* ── MOVE / FULLSCREEN buttons (discrete, overlay on camera) ── */
+  #ui-btns {
     position: fixed;
-    left: 0; right: 0;
-    z-index: 10;
+    top: env(safe-area-inset-top, 8px);
+    right: 8px;
+    z-index: 20;
     display: flex;
-    gap: 1px;
-    background: var(--border);
-    transition: top 0.25s ease, bottom 0.25s ease;
+    gap: 6px;
   }
-  #controls-panel.pos-bottom {
-    /* overlay on bottom → controls on top */
-    top: env(safe-area-inset-top, 0px);
-    bottom: auto;
-  }
-  #controls-panel.pos-top {
-    /* overlay on top → controls on bottom */
-    bottom: env(safe-area-inset-bottom, 0px);
-    top: auto;
-  }
-
-  .team-ctrl {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-    background: var(--border);
-  }
-
-  .ctrl-row {
-    display: flex;
-    flex: 1;
-    gap: 1px;
-  }
-
-  .btn {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: rgba(19,19,26,0.96);
-    border: none;
-    color: #fff;
+  .ui-btn {
+    background: rgba(10,10,15,0.7);
+    border: 1px solid var(--border);
+    color: var(--text-mid);
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: clamp(0.55rem, 1.8vw, 0.8rem);
+    font-size: 0.7rem;
     font-weight: 600;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
+    padding: 5px 10px;
+    border-radius: 20px;
     cursor: pointer;
-    gap: 1px;
-    padding: 6px 2px;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
-    transition: background 0.08s;
   }
-  .btn:active { background: #222230; }
-
-  .btn .bv {
-    font-size: clamp(1rem, 4vw, 1.9rem);
-    font-weight: 900;
-    line-height: 1;
-  }
-  .btn.s-add .bv { color: #6ee86e; }
-  .btn.s-sub .bv { color: #e86e6e; }
-  .btn.f-add .bv { color: var(--foul-color); }
-  .btn.f-sub .bv { color: var(--text-mid); }
-
-  .center-ctrl {
-    flex: 0 0 clamp(64px, 16vw, 110px);
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-    background: var(--border);
-  }
-
-  .btn-c {
-    flex: 1;
-    background: rgba(26,26,40,0.97);
-    border: none;
-    color: #fff;
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: clamp(0.55rem, 1.6vw, 0.75rem);
-    font-weight: 600;
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-    transition: background 0.08s;
-  }
-  .btn-c:active { background: #222230; }
-  .btn-c .ar { font-size: clamp(0.9rem, 2.8vw, 1.4rem); }
-  .btn-c.move { color: var(--accent); }
-  .btn-c.rst  { color: var(--text-dim); font-size: clamp(0.5rem, 1.4vw, 0.65rem); }
-  .btn-c.rst:active { color: #e86e6e; }
+  .ui-btn:active { background: rgba(40,40,60,0.9); }
+  #ui-btns.hidden { display: none; }
 
   /* ── MODAL ── */
   #modal-overlay {
@@ -315,7 +292,6 @@
     width: 100%;
   }
   .field-group input[type="text"]:focus { border-color: var(--accent); }
-
   .color-row { display: flex; gap: 8px; flex-wrap: wrap; }
   .color-swatch {
     width: 30px; height: 30px;
@@ -326,7 +302,6 @@
   }
   .color-swatch:active { transform: scale(0.88); }
   .color-swatch.selected { border-color: #fff; }
-
   .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
   .modal-btn {
     font-family: 'Barlow Condensed', sans-serif;
@@ -341,88 +316,91 @@
   }
   .modal-btn.cancel { background: var(--border); color: var(--text-mid); }
   .modal-btn.save   { background: var(--accent); color: #000; }
+
+  /* reset button in modal */
+  .modal-reset {
+    font-size: 0.7rem;
+    color: var(--foul-color);
+    text-decoration: underline;
+    cursor: pointer;
+    text-align: left;
+    background: none;
+    border: none;
+    font-family: 'Barlow', sans-serif;
+    padding: 0;
+  }
 </style>
 </head>
 <body>
 
-<!-- CAMERA -->
 <video id="camera" autoplay playsinline muted></video>
 <div id="cam-error">
   <div class="icon">📷</div>
   <div id="cam-error-msg">Iniciando cámara…</div>
 </div>
 
-<!-- OVERLAY BAR -->
-<div id="overlay-bar" class="pos-bottom">
-  <!-- Team A -->
-  <div class="ob-team left" id="ob-team-a" onclick="openModal('a')">
-    <div class="ob-color-stripe" id="ob-stripe-a"></div>
-    <div class="ob-team-inner">
-      <div class="ob-name" id="ob-name-a">LOCAL</div>
-      <div class="ob-foul-badge">
-        <div class="ob-foul-num" id="ob-foul-a">0</div>
-        <div class="ob-foul-lbl">faltas</div>
-      </div>
-      <div class="ob-score" id="ob-score-a">0</div>
-    </div>
-  </div>
+<!-- Touch zones -->
+<div id="touch-top"></div>
+<div id="touch-bottom"></div>
 
-  <!-- Center -->
-  <div class="ob-center">
-    <div class="ob-period-num" id="ob-period">1</div>
-    <div class="ob-period-lbl" id="ob-period-lbl">1° CTO</div>
-  </div>
-
-  <!-- Team B -->
-  <div class="ob-team right" id="ob-team-b" onclick="openModal('b')">
-    <div class="ob-color-stripe" id="ob-stripe-b"></div>
-    <div class="ob-team-inner">
-      <div class="ob-name" id="ob-name-b">VISITA</div>
-      <div class="ob-foul-badge">
-        <div class="ob-foul-num" id="ob-foul-b">0</div>
-        <div class="ob-foul-lbl">faltas</div>
-      </div>
-      <div class="ob-score" id="ob-score-b">0</div>
-    </div>
-  </div>
+<!-- Discrete UI buttons -->
+<div id="ui-btns">
+  <button class="ui-btn" onclick="togglePosition()">⇅ mover</button>
+  <button class="ui-btn" onclick="toggleFullscreen()">⤢ pantalla</button>
+  <button class="ui-btn" onclick="confirmReset()" style="color:var(--foul-color)">↺ reset</button>
 </div>
 
-<!-- CONTROLS PANEL -->
-<div id="controls-panel" class="pos-bottom">
-  <!-- Team A controls -->
-  <div class="team-ctrl">
-    <div class="ctrl-row">
-      <button class="btn s-sub" onclick="addScore('a',-1)"><span class="bv">−1</span><span>pto</span></button>
-      <button class="btn s-add" onclick="addScore('a',1)"><span class="bv">+1</span><span>pto</span></button>
-      <button class="btn s-add" onclick="addScore('a',2)"><span class="bv">+2</span><span>ptos</span></button>
-      <button class="btn s-add" onclick="addScore('a',3)"><span class="bv">+3</span><span>ptos</span></button>
-    </div>
-    <div class="ctrl-row">
-      <button class="btn f-sub" onclick="addFoul('a',-1)"><span class="bv">−</span><span>falta</span></button>
-      <button class="btn f-add" onclick="addFoul('a',1)"><span class="bv">+</span><span>falta</span></button>
-    </div>
+<!-- OVERLAY BAR -->
+<div id="overlay-bar">
+  <!-- Faltas Local -->
+  <div class="ob-seg foul" id="seg-foul-a">
+    <div class="foul-num" id="foul-a">0</div>
+    <div class="foul-lbl">faltas</div>
+    <div class="foul-arrows"><span>▲</span><span>▼</span></div>
   </div>
+  <div class="ob-div"></div>
 
-  <!-- Center controls -->
-  <div class="center-ctrl">
-    <button class="btn-c" onclick="changePeriod(1)"><span class="ar">▲</span><span>Per.</span></button>
-    <button class="btn-c" onclick="changePeriod(-1)"><span class="ar">▼</span><span>Per.</span></button>
-    <button class="btn-c move" onclick="togglePosition()">⇅ mover</button>
-    <button class="btn-c rst" onclick="confirmReset()">↺ reset</button>
+  <!-- Nombre Local -->
+  <div class="ob-seg name" id="seg-local">
+    <div class="name-text" id="name-a">LOCAL</div>
+    <div class="name-hint">mantén presionado para editar</div>
   </div>
+  <div class="ob-div"></div>
 
-  <!-- Team B controls -->
-  <div class="team-ctrl">
-    <div class="ctrl-row">
-      <button class="btn s-add" onclick="addScore('b',3)"><span class="bv">+3</span><span>ptos</span></button>
-      <button class="btn s-add" onclick="addScore('b',2)"><span class="bv">+2</span><span>ptos</span></button>
-      <button class="btn s-add" onclick="addScore('b',1)"><span class="bv">+1</span><span>pto</span></button>
-      <button class="btn s-sub" onclick="addScore('b',-1)"><span class="bv">−1</span><span>pto</span></button>
-    </div>
-    <div class="ctrl-row">
-      <button class="btn f-add" onclick="addFoul('b',1)"><span class="bv">+</span><span>falta</span></button>
-      <button class="btn f-sub" onclick="addFoul('b',-1)"><span class="bv">−</span><span>falta</span></button>
-    </div>
+  <!-- Score Local -->
+  <div class="ob-seg score" id="seg-score-a">
+    <div class="score-num" id="score-a">0</div>
+    <div class="score-hint"><span>▲ sube</span><span>▼ baja</span></div>
+  </div>
+  <div class="ob-div"></div>
+
+  <!-- Período -->
+  <div class="ob-seg period" id="seg-period">
+    <div class="period-num" id="period-num">1</div>
+    <div class="period-lbl" id="period-lbl">1° CTO</div>
+    <div class="period-hint">▲▼</div>
+  </div>
+  <div class="ob-div"></div>
+
+  <!-- Score Visita -->
+  <div class="ob-seg score" id="seg-score-b">
+    <div class="score-num" id="score-b">0</div>
+    <div class="score-hint"><span>▲ sube</span><span>▼ baja</span></div>
+  </div>
+  <div class="ob-div"></div>
+
+  <!-- Nombre Visita -->
+  <div class="ob-seg name" id="seg-visit">
+    <div class="name-text" id="name-b">VISITA</div>
+    <div class="name-hint">mantén presionado para editar</div>
+  </div>
+  <div class="ob-div"></div>
+
+  <!-- Faltas Visita -->
+  <div class="ob-seg foul" id="seg-foul-b">
+    <div class="foul-num" id="foul-b">0</div>
+    <div class="foul-lbl">faltas</div>
+    <div class="foul-arrows"><span>▲</span><span>▼</span></div>
   </div>
 </div>
 
@@ -457,7 +435,7 @@ const state = {
   a: { score:0, fouls:0, name:'LOCAL',  color:'#2060e0' },
   b: { score:0, fouls:0, name:'VISITA', color:'#e03030' },
   period: 1,
-  overlayPos: 'bottom' // 'bottom' | 'top'
+  overlayPos: 'bottom'
 };
 
 let modalTeam = null;
@@ -469,7 +447,7 @@ async function startCamera() {
   const errMsg = document.getElementById('cam-error-msg');
   try {
     const stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1080 } },
+      video: { facingMode: { ideal: 'environment' }, width:{ideal:1920}, height:{ideal:1080} },
       audio: false
     });
     video.srcObject = stream;
@@ -477,78 +455,153 @@ async function startCamera() {
   } catch(e) {
     video.style.display = 'none';
     errDiv.style.display = 'flex';
-    if (e.name === 'NotAllowedError') {
-      errMsg.textContent = 'Permiso de cámara denegado. Habilitá el acceso en ajustes del navegador.';
-    } else if (e.name === 'NotFoundError') {
-      errMsg.textContent = 'No se encontró cámara. Conectá una cámara e intentá de nuevo.';
-    } else {
-      errMsg.textContent = 'Error al iniciar la cámara: ' + e.message;
-    }
+    errMsg.textContent = e.name === 'NotAllowedError'
+      ? 'Permiso de cámara denegado. Habilitá el acceso en ajustes del navegador.'
+      : 'Error al iniciar la cámara: ' + e.message;
   }
 }
 
-// ── LAYOUT: controls height → overlay positioning ──
-function applyLayout() {
-  const ctrlPanel = document.getElementById('controls-panel');
-  const overlayBar = document.getElementById('overlay-bar');
+// ── TOUCH LOGIC ──
+// Divide overlay into 7 zones by X position
+// [0] foul-a  [1] name-a  [2] score-a  [3] period  [4] score-b  [5] name-b  [6] foul-b
+// name zones do nothing on touch (they open modal on click)
 
-  // Reset
-  ctrlPanel.classList.remove('pos-bottom','pos-top');
-  overlayBar.classList.remove('pos-bottom','pos-top');
+function getZone(clientX) {
+  const bar = document.getElementById('overlay-bar');
+  const segs = [
+    document.getElementById('seg-foul-a'),
+    document.getElementById('seg-local'),
+    document.getElementById('seg-score-a'),
+    document.getElementById('seg-period'),
+    document.getElementById('seg-score-b'),
+    document.getElementById('seg-visit'),
+    document.getElementById('seg-foul-b'),
+  ];
+  for (let i = 0; i < segs.length; i++) {
+    const r = segs[i].getBoundingClientRect();
+    if (clientX >= r.left && clientX <= r.right) return i;
+  }
+  // fallback: left half = score-a, right half = score-b
+  return clientX < window.innerWidth / 2 ? 2 : 4;
+}
 
-  // Get controls height after render
-  requestAnimationFrame(() => {
-    const ctrlH = ctrlPanel.offsetHeight;
-    const barH  = overlayBar.offsetHeight;
+function handleTap(isTop, clientX) {
+  const delta = isTop ? 1 : -1;
+  const zone  = getZone(clientX);
 
-    if (state.overlayPos === 'bottom') {
-      overlayBar.style.bottom = 'env(safe-area-inset-bottom, 0px)';
-      overlayBar.style.top    = '';
-      ctrlPanel.style.top    = 'env(safe-area-inset-top, 0px)';
-      ctrlPanel.style.bottom = '';
-    } else {
-      overlayBar.style.top    = 'env(safe-area-inset-top, 0px)';
-      overlayBar.style.bottom = '';
-      ctrlPanel.style.bottom = 'env(safe-area-inset-bottom, 0px)';
-      ctrlPanel.style.top    = '';
-    }
+  // zones: 0=foul-a, 1=name-a(skip), 2=score-a, 3=period, 4=score-b, 5=name-b(skip), 6=foul-b
+  switch(zone) {
+    case 0: addFoul('a', delta);   break;
+    case 1: addScore('a', delta);  break;
+    case 2: addScore('a', delta);  break;
+    case 3: changePeriod(delta);   break;
+    case 4: addScore('b', delta);  break;
+    case 5: addScore('b', delta);  break;
+    case 6: addFoul('b', delta);   break;
+  }
+}
+// Attach touch/click to zones
+['touch-top','touch-bottom'].forEach(id => {
+  const el = document.getElementById(id);
+  const isTop = id === 'touch-top';
+
+  el.addEventListener('click', e => {
+    // if modal is open, ignore
+    if (document.getElementById('modal-overlay').classList.contains('open')) return;
+    // check if tap landed on UI buttons
+    const target = document.elementFromPoint(e.clientX, e.clientY);
+    if (target && target.closest('#ui-btns')) return;
+    handleTap(isTop, e.clientX);
   });
+});
+
+// ── LONG PRESS ON NAMES ──
+let longPressTimer = null;
+const LONG_PRESS_MS = 500;
+
+function setupLongPress(segId, team) {
+  const el = document.getElementById(segId);
+
+  function start(e) {
+    e.preventDefault();
+    longPressTimer = setTimeout(() => {
+      longPressTimer = null;
+      openModal(team);
+    }, LONG_PRESS_MS);
+  }
+
+  function cancel() {
+    if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+  }
+
+  el.addEventListener('touchstart', start, { passive: false });
+  el.addEventListener('touchend',   cancel);
+  el.addEventListener('touchmove',  cancel);
 }
 
-function togglePosition() {
-  state.overlayPos = state.overlayPos === 'bottom' ? 'top' : 'bottom';
-  applyLayout();
-}
+setupLongPress('seg-local', 'a');
+setupLongPress('seg-visit', 'b');
 
 // ── STATE ──
 function clamp(v,mn,mx){ return Math.max(mn,Math.min(mx,v)); }
-
-function addScore(t,d){ state[t].score = clamp(state[t].score+d,0,999); render(); }
-function addFoul(t,d) { state[t].fouls = clamp(state[t].fouls+d,0,20);  render(); }
-
-function changePeriod(d){
-  state.period = clamp(state.period+d,1,6);
-  render();
-}
+function addScore(t,d)  { state[t].score  = clamp(state[t].score +d, 0, 999); render(); }
+function addFoul(t,d)   { state[t].fouls  = clamp(state[t].fouls +d, 0, 40);  render(); }
+function changePeriod(d){ state.period    = clamp(state.period   +d, 1, 6);   render(); }
 
 function confirmReset(){
-  if(confirm('¿Resetear marcador y faltas?')){
+  if(confirm('¿Resetear marcador y faltas? (El período se mantiene)')) {
     state.a.score=0; state.b.score=0;
     state.a.fouls=0; state.b.fouls=0;
     render();
   }
 }
 
+// ── RENDER ──
 function render(){
   ['a','b'].forEach(t => {
-    document.getElementById('ob-score-'+t).textContent = state[t].score;
-    document.getElementById('ob-foul-'+t).textContent  = state[t].fouls;
-    document.getElementById('ob-name-'+t).textContent  = state[t].name.toUpperCase();
-    document.getElementById('ob-stripe-'+t).style.background = state[t].color;
+    document.getElementById('score-'+t).textContent = state[t].score;
+    document.getElementById('foul-'+t).textContent  = state[t].fouls;
+    document.getElementById('name-'+t).textContent  = state[t].name.toUpperCase();
   });
+  // colors via CSS custom props on overlay
+  const bar = document.getElementById('overlay-bar');
+  bar.style.setProperty('--color-a', state.a.color);
+  bar.style.setProperty('--color-b', state.b.color);
+
   const p = state.period;
-  document.getElementById('ob-period').textContent    = p;
-  document.getElementById('ob-period-lbl').textContent = PERIOD_LABELS[p-1] || ('PRÓRR '+(p-4));
+  document.getElementById('period-num').textContent = p;
+  document.getElementById('period-lbl').textContent = PERIOD_LABELS[p-1] || ('PRÓRR '+(p-4));
+}
+
+// ── POSITION ──
+function togglePosition(){
+  state.overlayPos = state.overlayPos === 'bottom' ? 'top' : 'bottom';
+  applyLayout();
+}
+
+function applyLayout(){
+  const bar = document.getElementById('overlay-bar');
+  if(state.overlayPos === 'top'){
+    bar.style.top    = 'env(safe-area-inset-top, 0px)';
+    bar.style.bottom = '';
+    bar.classList.add('pos-top');
+  } else {
+    bar.style.bottom = 'env(safe-area-inset-bottom, 0px)';
+    bar.style.top    = '';
+    bar.classList.remove('pos-top');
+  }
+}
+
+// ── FULLSCREEN ──
+function toggleFullscreen(){
+  if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+    const el = document.documentElement;
+    if (el.requestFullscreen) el.requestFullscreen();
+    else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+  } else {
+    if (document.exitFullscreen) document.exitFullscreen();
+    else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+  }
 }
 
 // ── MODAL ──
@@ -557,7 +610,7 @@ function buildSwatches(sel){
   c.innerHTML='';
   COLORS.forEach(hex => {
     const sw = document.createElement('div');
-    sw.className = 'color-swatch' + (hex===sel?' selected':'');
+    sw.className = 'color-swatch'+(hex===sel?' selected':'');
     sw.style.background = hex;
     sw.onclick = () => {
       c.querySelectorAll('.color-swatch').forEach(s=>s.classList.remove('selected'));
@@ -568,7 +621,7 @@ function buildSwatches(sel){
 }
 
 function openModal(t){
-  modalTeam=t;
+  modalTeam = t;
   document.getElementById('modal-title').textContent =
     t==='a' ? 'Editar Equipo Local' : 'Editar Equipo Visita';
   document.getElementById('modal-name').value = state[t].name;
@@ -579,11 +632,11 @@ function openModal(t){
 
 function closeModal(){
   document.getElementById('modal-overlay').classList.remove('open');
-  modalTeam=null;
+  modalTeam = null;
 }
 
 function rgbToHex(str){
-  const m=str.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+  const m = str.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
   if(!m) return str;
   return '#'+[m[1],m[2],m[3]].map(x=>parseInt(x).toString(16).padStart(2,'0')).join('');
 }
@@ -593,15 +646,15 @@ function saveModal(){
   const name = document.getElementById('modal-name').value.trim();
   if(name) state[modalTeam].name = name;
   const sel = document.querySelector('.color-swatch.selected');
-  if(sel) state[modalTeam].color = rgbToHex(sel.style.background)||state[modalTeam].color;
+  if(sel) state[modalTeam].color = rgbToHex(sel.style.background) || state[modalTeam].color;
   closeModal();
   render();
 }
 
-document.getElementById('modal-overlay').addEventListener('click',function(e){
+document.getElementById('modal-overlay').addEventListener('click', function(e){
   if(e.target===this) closeModal();
 });
-document.getElementById('modal-name').addEventListener('keydown',e=>{
+document.getElementById('modal-name').addEventListener('keydown', e=>{
   if(e.key==='Enter') saveModal();
 });
 
