@@ -7,6 +7,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;900&family=Barlow:wght@400;600&display=swap" rel="stylesheet">
 <style>
   :root {
+    /* ── AJUSTES DE TAMAÑO ── */
+    --bar-height: 52px;   /* alto de la barra del marcador */
+    --bar-width:  700px;  /* ancho máximo de la barra     */
+
     --bg: #0a0a0f;
     --panel: #13131a;
     --border: #2a2a3a;
@@ -56,11 +60,11 @@
     position: fixed;
     left: 50%;
     transform: translateX(-50%);
-    width: min(98vw, 700px);
+    width: min(98vw, var(--bar-width));
     z-index: 10;
     display: flex;
     align-items: stretch;
-    height: clamp(38px, 8dvh, 56px);
+    height: var(--bar-height);
     bottom: env(safe-area-inset-bottom, 0px);
     border-radius: 6px;
     overflow: hidden;
@@ -98,14 +102,14 @@
     cursor: pointer;
   }
   .foul-num {
-    font-size: clamp(1rem, 3.8vw, 1.8rem);
+    font-size: calc(var(--bar-height) * 0.48);
     font-weight: 900;
     color: var(--foul-color);
     line-height: 1;
     flex-shrink: 0;
   }
   .foul-lbl {
-    font-size: clamp(0.3rem, 0.9vw, 0.42rem);
+    font-size: calc(var(--bar-height) * 0.13);
     color: var(--text-mid);
     text-transform: uppercase;
     letter-spacing: 0.1em;
@@ -119,7 +123,7 @@
     cursor: pointer;
   }
   .name-text {
-    font-size: clamp(0.6rem, 2.2vw, 0.95rem);
+    font-size: calc(var(--bar-height) * 0.28);
     font-weight: 700;
     letter-spacing: 0.04em;
     text-transform: uppercase;
@@ -133,7 +137,7 @@
     flex: 0 0 clamp(44px, 10vw, 72px);
   }
   .score-num {
-    font-size: clamp(1.6rem, 6.5vw, 3.4rem);
+    font-size: calc(var(--bar-height) * 0.72);
     font-weight: 900;
     line-height: 1;
     font-variant-numeric: tabular-nums;
@@ -146,14 +150,14 @@
     background: rgba(20,20,35,0.92);
   }
   .period-num {
-    font-size: clamp(1.4rem, 5.5vw, 2.8rem);
+    font-size: calc(var(--bar-height) * 0.58);
     font-weight: 900;
     color: var(--accent);
     line-height: 1;
     flex-shrink: 0;
   }
   .period-lbl {
-    font-size: clamp(0.28rem, 0.9vw, 0.42rem);
+    font-size: calc(var(--bar-height) * 0.13);
     color: var(--text-mid);
     text-transform: uppercase;
     letter-spacing: 0.1em;
@@ -343,7 +347,7 @@
 <script>
 const COLORS = [
   '#ffffff','#e03030','#2060e0','#20a040',
-  '#e8c020','#e07020','#444460','#8040c0',
+  '#e8c020','#e07020','#111111','#8040c0',
   '#40a8e0','#e060a0','#00b894','#d63031'
 ];
 const PERIOD_LABELS = ['1° CTO','2° CTO','3° CTO','4° CTO','PRÓRR 1','PRÓRR 2'];
